@@ -1,0 +1,12 @@
+{
+  "name": "incident-management-cds",
+  "version": "1.0.0",
+  "devDependencies": {
+    "@sap/cds": "^9.9.1",
+    "@sap/cds-dk": "^9.9.3"
+  },
+  "sapux": [
+    "app/incidents"
+  ],
+  "dependencies": {}
+}
