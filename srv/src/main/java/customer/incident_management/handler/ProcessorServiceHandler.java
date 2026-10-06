@@ -68,58 +68,12 @@ public class ProcessorServiceHandler implements EventHandler {
     @Before(event = CqnService.EVENT_CREATE)
     public void validateIncidentOnCreate(List<Incidents> incidents) {
 
-
         for (Incidents incident : incidents) {
 
             String title = incident.getTitle();
 
-
-            // Title mandatory
-            if (title == null ||
-                    title.trim().isEmpty()) {
-
-                throw new ServiceException(
-                        ErrorStatuses.BAD_REQUEST,
-                        "Incident title is mandatory.");
-            }
-
-
-            // Minimum title length
-            if (title.trim().length() < 5) {
-
-                throw new ServiceException(
-                        ErrorStatuses.BAD_REQUEST,
-                        "Incident title must contain at least 5 characters.");
-            }
-
-
-            // Only letters, numbers and spaces
-            if (!title.matches("[a-zA-Z0-9 ]+")) {
-
-                throw new ServiceException(
-                        ErrorStatuses.BAD_REQUEST,
-                        "Special characters are not allowed in the incident title.");
-            }
-
-
-            // Cannot contain only numbers
-            if (title.matches("\\d+")) {
-
-                throw new ServiceException(
-                        ErrorStatuses.BAD_REQUEST,
-                        "Incident title cannot contain only numbers.");
-            }
-
-
-            // Maximum length
-            if (title.length() > 100) {
-
-                throw new ServiceException(
-                        ErrorStatuses.BAD_REQUEST,
-                        "Incident title cannot exceed 100 characters.");
-            }
-
-
+            // Title rules (shared with UPDATE)
+            validateTitle(title);
 
             // Customer mandatory
             if (incident.getCustomerId() == null ||
@@ -130,8 +84,6 @@ public class ProcessorServiceHandler implements EventHandler {
                         "Customer is mandatory.");
             }
 
-
-
             // Duplicate title check
             if (incidentExists(title, null)) {
 
@@ -139,7 +91,6 @@ public class ProcessorServiceHandler implements EventHandler {
                         ErrorStatuses.CONFLICT,
                         "An incident with the same title already exists.");
             }
-
         }
     }
 
@@ -191,84 +142,27 @@ public class ProcessorServiceHandler implements EventHandler {
     @Before(event = CqnService.EVENT_UPDATE)
     public void validateIncidentOnUpdate(Incidents incident) {
 
-
         String title = incident.getTitle();
 
-
-
-        // Title mandatory
-        if (title == null ||
-                title.trim().isEmpty()) {
-
-            throw new ServiceException(
-                    ErrorStatuses.BAD_REQUEST,
-                    "Incident title is mandatory.");
-        }
-
-
-
-        // Minimum length
-        if (title.trim().length() < 5) {
-
-            throw new ServiceException(
-                    ErrorStatuses.BAD_REQUEST,
-                    "Incident title must contain at least 5 characters.");
-        }
-
-
-
-        // Only letters numbers spaces
-        if (!title.matches("[a-zA-Z0-9 ]+")) {
-
-            throw new ServiceException(
-                    ErrorStatuses.BAD_REQUEST,
-                    "Special characters are not allowed in the incident title.");
-        }
-
-
-
-        // Cannot contain only numbers
-        if (title.matches("\\d+")) {
-
-            throw new ServiceException(
-                    ErrorStatuses.BAD_REQUEST,
-                    "Incident title cannot contain only numbers.");
-        }
-
-
-
-        // Maximum length
-        if (title.length() > 100) {
-
-            throw new ServiceException(
-                    ErrorStatuses.BAD_REQUEST,
-                    "Incident title cannot exceed 100 characters.");
-        }
-
-
+        // Title rules (shared with CREATE)
+        validateTitle(title);
 
         // Customer validation
         if (incident.getCustomerId() == null ||
                 incident.getCustomerId().isBlank()) {
-
 
             throw new ServiceException(
                     ErrorStatuses.BAD_REQUEST,
                     "Customer is mandatory.");
         }
 
-
-
         // Duplicate check excluding same record
         if (incidentExists(title, incident.getId())) {
-
 
             throw new ServiceException(
                     ErrorStatuses.CONFLICT,
                     "An incident with the same title already exists.");
-
         }
-
     }
 
 
@@ -295,6 +189,50 @@ public class ProcessorServiceHandler implements EventHandler {
                     ErrorStatuses.CONFLICT,
                     "Can't modify a closed incident"
             );
+        }
+    }
+
+
+
+
+    /*
+     * Shared title validation used by CREATE and UPDATE
+     */
+    private void validateTitle(String title) {
+
+        // Title mandatory
+        if (title == null || title.trim().isEmpty()) {
+            throw new ServiceException(
+                    ErrorStatuses.BAD_REQUEST,
+                    "Incident title is mandatory.");
+        }
+
+        // Minimum title length
+        if (title.trim().length() < 5) {
+            throw new ServiceException(
+                    ErrorStatuses.BAD_REQUEST,
+                    "Incident title must contain at least 5 characters.");
+        }
+
+        // Only letters, numbers and spaces
+        if (!title.matches("[a-zA-Z0-9 ]+")) {
+            throw new ServiceException(
+                    ErrorStatuses.BAD_REQUEST,
+                    "Special characters are not allowed in the incident title.");
+        }
+
+        // Cannot contain only numbers
+        if (title.matches("\\d+")) {
+            throw new ServiceException(
+                    ErrorStatuses.BAD_REQUEST,
+                    "Incident title cannot contain only numbers.");
+        }
+
+        // Maximum length
+        if (title.length() > 100) {
+            throw new ServiceException(
+                    ErrorStatuses.BAD_REQUEST,
+                    "Incident title cannot exceed 100 characters.");
         }
     }
 
