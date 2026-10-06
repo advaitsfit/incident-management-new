@@ -29,3 +29,8 @@ hs_err*
 .vscode
 .idea
 .reloadtrigger
+
+# UI5 build output
+app/*/dist/
+resources/*.zip
+mta_archives/
